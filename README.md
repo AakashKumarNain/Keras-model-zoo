@@ -8,3 +8,4 @@ There are two things that we are focusing on right now: `Computer Vision` and `N
 * The models should be compatible with both `tf.keras` as well as `Keras`.
 * Models should be descibed as lego blocks that are usable and which can be easliy modified as per the needs.
 * Models focusing on computer vision should go under `KerasCV` and others, focusing on NLP, should go under `KerasNLP`.
+* Please refer to the `API signatures` defined in each sub-package to for more details
