@@ -68,7 +68,7 @@ The benefit of this is that we can use a lot of functionality from the `Classifi
 ### Example
 ```python
 from keras_model_zoo.vision.detection import SSD
-from keras_model_zoo.vision.detection.utils import generate_achors
+from keras_model_zoo.vision.detection.utils import generate_anchors
 from keras_model_zoo.vision.detection.utils import box_encoder, box_decoder, nms
 
 # define your base_model 
@@ -77,14 +77,40 @@ base_model = Model(...)
 # add auxillary conv layers if needed
 base_model_output = base_model.output
 x = Conv2D(...)(base_model_output)
+x = Conv2D(...)(x)
 ...
 
-# generate anchors
+# add predictor layers for boxes
+loc1 = Conv2D(n_boxes_loc1*4, (3,3), padding="same")(conv4_3)
+loc2 = Conv2D(n_boxes_loc2*4, (3,3), padding="same")(conv7)
+....
+
+# add predictor layers for classes
+classes_conv4 = Conv2D(n_boxes_loc1*nb_classes, (3,3), padding="same")(conv4_3)
+classes_conv7 = Conv2D(n_boxes_loc2*nb_classes, (3,3), padding="same")(conv7)
+...
+
+# generate anchors. The anchors specification should be defined
+# in a dict for each of the layer for which priors have to be generated
+anchors_conv4 = generate_anchors(config={name:'conv4', 
+                                         fmap_dim:(8,8), 
+                                         scale:0.2,
+                                         ar=[1., 2., 3., 1/2., 1/3.]
+                                         extra_prior:True})
+...
+                                         
+                                         
 
 # define ssd model now
-model = SSD(feature_extractor=base_model,
-            enoder=box_endoer # can be user defined as well,
-            decoder=box_decoder # can be user defined as well,
-            )
+model = SSD(base_model=base_model,
+            loc_layers=[loc1, loc2],
+            class_pred_layers=[classes_conv4, classes_conv7],
+            anchors=[anchors_conv4, anchors_conv7],
+            enoder=box_endoer #can be user defined as well,
+            decoder=box_decoder #can be user defined as well,
+            hard_negative_mining=True,
+            nms_type="all" #can be class wise as well)
 
+# train model
+model.fit(..)
 ```
