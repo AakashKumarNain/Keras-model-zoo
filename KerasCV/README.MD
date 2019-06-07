@@ -111,8 +111,11 @@ model = SSD(base_model=base_model,
             hard_negative_mining=True,
             nms_type="all" #can be class wise as well)
 
+# compile the model
+model.compile(...)
+
 # train model
-model.fit(..)
+model.fit(...)
 ```
 
 ---
