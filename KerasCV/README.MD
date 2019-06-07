@@ -114,3 +114,32 @@ model = SSD(base_model=base_model,
 # train model
 model.fit(..)
 ```
+
+---
+
+## Segmentation
+
+* FCN
+* FPN
+* Unet
+* DeepLab v1/v2/v3/v3+
+* MaskRCNN
+* LinkNet
+* PSPNet
+
+Like detection models, segmentation models can be made with different backbones. For example, apart from orifinal `UNet`, you can build it with `VGG` or `ResNets` as the backbone. Now there should be an option to specify whether the user want to use original model as defined in the paper or if they want to use a different backbone.
+
+### Example
+```python
+from keras_model_zoo.vision.segmentation import DeepLabV3
+
+model = DeepLabV3(weights="pretrained", #can be original model weights or the backbone weights
+                  backbone=None)
+
+# compile the model
+model.compile(...)
+
+# fit the model
+model.fit(..)
+                  
+```
