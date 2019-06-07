@@ -143,6 +143,6 @@ model = DeepLabV3(weights="pretrained", #can be original model weights or the ba
 model.compile(...)
 
 # fit the model
-model.fit(..)
+model.fit(...)
                   
 ```
