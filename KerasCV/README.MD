@@ -42,3 +42,49 @@ model.load_weights("weights.h5", by_name=True, weights_for_layers=['Conv1_1', 'C
 ```
  
 ---
+
+## Detection Models
+
+* SSD
+* SSDLite
+* RetinaNet
+* Yolo v1/v2/v3
+* FRCNN
+* RFCN
+
+Any detection network comprises of the following parts
+* A base network for feature extraction
+* Auxillary convolutions
+* Predictor layers
+* An anchor-generator layer
+* Box encoders/decoders
+* Non-Maximum Supression
+* Utilities like `Hard-Negative mining`, `Jaccard Overlap`, custom loss(to be implemented by user only)
+
+ Consider these as the lego blocks for building a detection model. Apart from `feature extraction`, most of the moving parts remain the same for a particular type of model. For example, there can be `MobileNet-SSD` as well as `Inceptionv3-SSD`. Only the base network changes, rest of the pipleine for a `SSD` model remains the same.
+
+The benefit of this is that we can use a lot of functionality from the `Classification` subpackage, until unless the base network is something that is not readily available in `Classification` subpackage. It is also necessary to make sure that changing things in other parts is easy as well. For example, if we want to change the `scales` and `aspect_ratios` of the anchors, then we can these values in the function/layer responsible for creating anchors
+
+### Example
+```python
+from keras_model_zoo.vision.detection import SSD
+from keras_model_zoo.vision.detection.utils import generate_achors
+from keras_model_zoo.vision.detection.utils import box_encoder, box_decoder, nms
+
+# define your base_model 
+base_model = Model(...)
+
+# add auxillary conv layers if needed
+base_model_output = base_model.output
+x = Conv2D(...)(base_model_output)
+...
+
+# generate anchors
+
+# define ssd model now
+model = SSD(feature_extractor=base_model,
+            enoder=box_endoer # can be user defined as well,
+            decoder=box_decoder # can be user defined as well,
+            )
+
+```
