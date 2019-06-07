@@ -59,7 +59,7 @@ Any detection network comprises of the following parts
 * An anchor-generator layer
 * Box encoders/decoders
 * Non-Maximum Supression
-* Utilities like `Hard-Negative mining`, `Jaccard Overlap`, custom loss(to be implemented by user only)
+* Utilities like `Hard-Negative mining`, `Jaccard Overlap`
 
  Consider these as the lego blocks for building a detection model. Apart from `feature extraction`, most of the moving parts remain the same for a particular type of model. For example, there can be `MobileNet-SSD` as well as `Inceptionv3-SSD`. Only the base network changes, rest of the pipleine for a `SSD` model remains the same.
 
