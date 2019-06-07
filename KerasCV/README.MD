@@ -32,4 +32,13 @@ model.fit(...)    # or model.fit_generator(...)
 ```
 There should be some notable changes though. 
 1. In the pretrained models, layers that have `multiple modes` should be defined clearly keeping in mind that these models are going to be used for `transfer learning` and `fine-tuning`. So, the `training mode` and `inference mode` when `freezing` a layer should be something very clear.
-2. Sometimes we don't want the weights to be loaded for all the layers. For example, in VGG16, instaed of loading weights for all the conv blocks, what if we want to load weights only for the first four conv blocks 
+2. Sometimes we don't want the weights to be loaded for all the layers. For example, in VGG16, instaed of loading weights for all the conv blocks, what if we want to load weights only for the first conv block only 
+
+```python
+# This is actually a breaking change to the existing API.
+# So we need to compe up with some alternative. One way to include
+# this is to provide a function in the `utils` file if possible
+model.load_weights("weights.h5", by_name=True, weights_for_layers=['Conv1_1', 'Conv1_2'])
+```
+ 
+---
