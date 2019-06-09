@@ -3,7 +3,7 @@
 ## Interface
 
 ## Classification Models
-`Classification` models serve as the `hello world` of Computer Vision with Deep Learning. The models defined here should follow the same norm as the ones defined in `keras-applications`. The same API can be extended for some level of flexibility though. This is a list(not exhaustive) of all the classification models, excluding that are already in `keras-applications` as they can be directly ported here with minimal changes. 
+`Classification` models serve as the `hello world` of Computer Vision with Deep Learning. The models defined here should follow the same norm as the ones defined in `keras-applications`. The same API can be extended for some level of flexibility though. This is a list(not exhaustive) of all the classification models, **excluding** the ones that are already in `keras-applications` as they can be directly ported here with minimal changes. 
 * Inception V1
 * Inception V2
 * Inception V4
@@ -37,8 +37,14 @@ There should be some notable changes though.
 ```python
 # This is actually a breaking change to the existing API.
 # So we need to compe up with some alternative. One way to include
-# this is to provide a function in the `utils` file if possible
-model.load_weights("weights.h5", by_name=True, weights_for_layers=['Conv1_1', 'Conv1_2'])
+# this is to provide a function in the `utils` file if possible.
+
+from keras_models_zoo.vision.utils impot load_weights_by_layers
+
+load_weights_by_layers(model=model,
+                       weights="weights.h5", 
+                       by_name=True, 
+                       layers=['Conv1_1', 'Conv1_2'])
 ```
  
 ---
@@ -52,24 +58,25 @@ model.load_weights("weights.h5", by_name=True, weights_for_layers=['Conv1_1', 'C
 * FRCNN
 * RFCN
 
-Any detection network comprises of the following parts
+Any detection network comprises of the following parts:
 * A base network for feature extraction
 * Auxillary convolutions
 * Predictor layers
 * An anchor-generator layer
 * Box encoders/decoders
 * Non-Maximum Supression
-* Utilities like `Hard-Negative mining`, `Jaccard Overlap`
+* Box-matchers
+* Hard-Negative Mining
 
- Consider these as the lego blocks for building a detection model. Apart from `feature extraction`, most of the moving parts remain the same for a particular type of model. For example, there can be `MobileNet-SSD` as well as `Inceptionv3-SSD`. Only the base network changes, rest of the pipleine for a `SSD` model remains the same.
+Consider these as the lego blocks for building a detection model. Apart from `feature extraction`, most of the moving parts remain the same for a particular type of model. For example, there can be `MobileNet-SSD` as well as `Inceptionv3-SSD`. Only the base network changes, rest of the pipleine for a `SSD` model remains the same.
 
-The benefit of this is that we can use a lot of functionality from the `Classification` subpackage, until unless the base network is something that is not readily available in `Classification` subpackage. It is also necessary to make sure that changing things in other parts is easy as well. For example, if we want to change the `scales` and `aspect_ratios` of the anchors, then we can these values in the function/layer responsible for creating anchors
+The benefit of this is that we can use a lot of functionality from the `Classification` subpackage, until unless the base network is something that is not readily available in `Classification` subpackage. It is also necessary to make sure that changing `parameters` in other parts of a detection model is easy as well. For example, if we want to change the `scales` and `aspect_ratios` of the anchors, then we can provide custom values in the function/layer responsible for creating anchors
 
 ### Example
 ```python
 from keras_model_zoo.vision.detection import SSD
 from keras_model_zoo.vision.detection.utils import generate_anchors
-from keras_model_zoo.vision.detection.utils import box_encoder, box_decoder, nms
+from keras_model_zoo.vision.detection.utils import box_encoder, box_decoder, nms, matcher
 
 # define your base_model 
 base_model = Model(...)
@@ -92,11 +99,11 @@ classes_conv7 = Conv2D(n_boxes_loc2*nb_classes, (3,3), padding="same")(conv7)
 
 # generate anchors. The anchors specification should be defined
 # in a dict for each of the layer for which priors have to be generated
-anchors_conv4 = generate_anchors(config={name:'conv4', 
-                                         fmap_dim:(8,8), 
-                                         scale:0.2,
-                                         ar=[1., 2., 3., 1/2., 1/3.]
-                                         extra_prior:True})
+anchors_conv4 = generate_anchors(config={name :'conv4', 
+                                         fmap_dim : (8,8), 
+                                         scale : 0.2,
+                                         ar : [1., 2., 3., 1/2., 1/3.]
+                                         extra_prior : True})
 ...
                                          
                                          
@@ -106,9 +113,10 @@ model = SSD(base_model=base_model,
             loc_layers=[loc1, loc2],
             class_pred_layers=[classes_conv4, classes_conv7],
             anchors=[anchors_conv4, anchors_conv7],
-            enoder=box_endoer #can be user defined as well,
-            decoder=box_decoder #can be user defined as well,
+            enoder=box_endoer #can be user defined function as well,
+            decoder=box_decoder #can be user defined function as well,
             hard_negative_mining=True,
+            matcher=matcher, # can be user defined function as well
             nms_type="all" #can be class wise as well)
 
 # compile the model
@@ -130,14 +138,15 @@ model.fit(...)
 * LinkNet
 * PSPNet
 
-Like detection models, segmentation models can be made with different backbones. For example, apart from orifinal `UNet`, you can build it with `VGG` or `ResNets` as the backbone. Now there should be an option to specify whether the user want to use original model as defined in the paper or if they want to use a different backbone.
+Like detection models, segmentation models can be made with different backbones. For example, apart from original `UNet`, you can build UNet with `VGG` or `ResNets` as the backbone. Now there should be an option to specify whether the user want to use original model as defined in the paper or if they want to use a different backbone.
 
 ### Example
 ```python
 from keras_model_zoo.vision.segmentation import DeepLabV3
 
-model = DeepLabV3(weights="pretrained", #can be original model weights or the backbone weights
-                  backbone=None)
+model = DeepLabV3(backbone=None, 
+                  weights="pretrained", #can be original model weights or the backbone weights
+                  )
 
 # compile the model
 model.compile(...)
