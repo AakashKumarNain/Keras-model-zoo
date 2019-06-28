@@ -52,11 +52,9 @@ load_weights_by_layers(model=model,
 ## Detection Models
 
 * SSD
-* SSDLite
 * RetinaNet
-* Yolo v1/v2/v3
-* FRCNN
-* RFCN
+* Yolo v3
+
 
 Any detection network comprises of the following parts:
 * A base network for feature extraction
@@ -130,13 +128,10 @@ model.fit(...)
 
 ## Segmentation
 
-* FCN
 * FPN
 * Unet
-* DeepLab v1/v2/v3/v3+
+* DeepLab v3
 * MaskRCNN
-* LinkNet
-* PSPNet
 
 Like detection models, segmentation models can be made with different backbones. For example, apart from original `UNet`, you can build UNet with `VGG` or `ResNets` as the backbone. Now there should be an option to specify whether the user want to use original model as defined in the paper or if they want to use a different backbone.
 
